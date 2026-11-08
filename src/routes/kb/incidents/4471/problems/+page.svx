@@ -9,6 +9,10 @@ tickets:
   parser: https://github.com/MateuszKruk1303/support-kb-4471/issues/1
   hint: https://github.com/MateuszKruk1303/support-kb-4471/issues/2
   one-day: https://github.com/MateuszKruk1303/support-kb-4471/issues/3
+state:
+  parser: fixed
+  hint: won't fix
+  one-day: open
 ---
 
 <script>
@@ -18,44 +22,47 @@ tickets:
   import RenderStamp from '#lib/kb/RenderStamp.svelte';
 </script>
 
-[#4471](/kb/incidents/4471) is marked known: one issue, one fix queued. Its own table already
-disagrees. Read by cause, the <ProblemCount ticket={4471} /> reports merged into it are
-<ProblemCount ticket={4471} of="problems" /> problems, and the queued parser fix closes only one
-of them. Each problem now has a ticket of its own.
+[#4471](/kb/incidents/4471) was marked known: one issue, one fix queued. Read by cause, the <ProblemCount ticket={4471} /> reports merged into it are <ProblemCount ticket={4471} of="problems" /> problems.
+Engineering closed #4471 on 5 October: the parser fix shipped (`fix(dates): parse dd/mm for eu locales`),
+and the hint problem is won't fix, because the booking-v3 form is retired. That work did not touch the
+third problem.
 
 <Callout kind="warn">
-When the parser fix ships, <ProblemCount ticket={4471} problem="hint" /> hint reports and
-<ProblemCount ticket={4471} problem="one-day" /> one-day moves stay broken. Do not close them with #4471.
+Still open: <ProblemCount ticket={4471} problem="one-day" /> one-day moves. Closing #4471 did not fix
+them, and neither the parser fix nor retiring booking-v3 changes how a date moves a day. They keep
+their own ticket until a fix ships.
 </Callout>
 
 ## The split
 
-<ProblemSplit ticket={4471} {tickets} />
+<ProblemSplit ticket={4471} {tickets} {state} />
 
 ## What each problem is
 
-### `parser`: the parser reads day-first dates month first
+### `parser`: the parser reads day-first dates month first · fixed
 
-The shared parser reads every date month first. Every tenant on file writes the day first, so a
-date with both parts at twelve or less comes out flipped: "7 April" goes out as "4 July". This is
-the bug #4471 names, and the queued fix is for it. It reaches tenants through the app, by email,
-and through booking-v2's form, whose hint (DD/MM/YYYY) matches how they write.
+The shared parser read every date month first. Every tenant on file writes the day first, so a
+date with both parts at twelve or less came out flipped: "7 April" went out as "4 July". This is
+the bug #4471 named, fixed by `fix(dates): parse dd/mm for eu locales`. It reached tenants through
+the app, by email, and through booking-v2's form, whose hint (DD/MM/YYYY) matches how they write.
 
-### `hint`: booking-v3's form tells people to type the month first
+### `hint`: booking-v3's form told people to type the month first · won't fix
 
-booking-v3 prints MM/DD/YYYY under its date field. People do what the hint says and type the
-month first; the form reads the date the tenant's way, day first, and flips it. Only reports that
-came in through the form, at tenants on booking-v3, are this problem. The parser fix does not touch
-it: the hint has to match the tenant's locale, or the form has to read what its hint asks for.
+booking-v3 printed MM/DD/YYYY under its date field. People did what the hint said and typed the
+month first; the form read the date the tenant's way, day first, and flipped it. Only reports that
+came in through the form, at tenants on booking-v3, are this problem. The parser fix did not touch
+it. It is won't fix because booking-v3 is retired: with the form gone, nothing prints that hint.
 
-### `one-day`: the date moves one day earlier
+### `one-day`: the date moves one day earlier · open
 
 Not a flip. The date lands one day early, and only sometimes: "Tuesday 6 October showed as
 Monday", one meeting reached Lisbon as Tuesday and Toronto as Monday, an invite arrived before the
 booking was made. That points at a date with no time being turned into a moment and shown in
 another time zone. The desk already read these reports as a one-day move
-([desk notes](https://github.com/MateuszKruk1303/support-kb-4471/blob/main/src/lib/data/desk-notes.json));
-here they are counted as their own problem instead of a footnote under `parser`.
+([desk notes](https://github.com/MateuszKruk1303/support-kb-4471/blob/main/src/lib/data/desk-notes.json)),
+filed them under `parser` by tenant and footnoted them. A day-first parser does not move a date by a
+day, so the parser fix leaves them as they are. Next step: check how booking dates cross time zones
+between the booking and the invite.
 
 ## How the split is made
 
@@ -63,9 +70,10 @@ here they are counted as their own problem instead of a footnote under `parser`.
 - **The tenant decides the cause, not intake.** Intake tags a report from the reporter's browser;
   the cause comes from the tenant's locale and booking form (`causes.ts`). The "tagged at intake as"
   column shows how far the two disagree. Do not count by tag.
-- **The desk's reading wins for one-day moves.** A report in the desk's one-day-move notes is that
-  problem, whatever its tenant (`problems.ts`).
-- **Every number here is built from the data at render time.** When the desk merges more reports
-  into #4471, the split follows. The tickets hold the counts as they were when they were filed.
+- **Counted the way the desk counts.** Every report stays where the desk's own table files it, by
+  tenant. A report in the desk's one-day-move notes is counted as a one-day move as well, so those
+  reports sit in two rows (`problems.ts`).
+- **Every number here is built from the data at render time.** The states come from the
+  engineering update that closed #4471; the counts come from the export.
 
 <RenderStamp {signature} />
