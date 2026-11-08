@@ -4,7 +4,7 @@ title: '#4471 · split by problem'
 owner: Mateusz Kruk
 status: open
 reviewed: 2026-11-08
-signature: 'Mateusz Kruk (MateuszKruk1303)'
+signature: 'v1.eyJzdWIiOiI3NzIiLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdCI6MTc5NDE1MjYxNiwiZXhwIjoxNzk0MjM5MDE2fQ.g2tWgPriBEwIZtOTd26nhZjAohBHUm3L9mGubwiAEfQ'
 tickets:
   parser: https://github.com/MateuszKruk1303/support-kb-4471/issues/1
   hint: https://github.com/MateuszKruk1303/support-kb-4471/issues/2
